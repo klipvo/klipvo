@@ -1,21 +1,56 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { VideoCard } from "@/components/video-card";
-import { useSavedDeals } from "@/components/providers/saved-deals-provider";
 import { useCopyCode } from "@/lib/use-copy-code";
-import { CATEGORIES, DEALS } from "@/lib/mock-data";
+import { toggleSaveDeal } from "@/lib/actions/deals";
+import { CATEGORIES } from "@/lib/constants";
+import type { DealView } from "@/lib/data/deals";
 
-export function FeedScreen() {
+interface FeedScreenProps {
+  deals: DealView[];
+  initialSavedIds: string[];
+  isAuthenticated: boolean;
+}
+
+export function FeedScreen({ deals, initialSavedIds, isAuthenticated }: FeedScreenProps) {
   const [activeCategory, setActiveCategory] = useState<(typeof CATEGORIES)[number]>("All");
-  const { isSaved, toggleSave } = useSavedDeals();
+  const [savedIds, setSavedIds] = useState<Set<string>>(() => new Set(initialSavedIds));
   const { copiedId, copyCode } = useCopyCode();
+  const [, startTransition] = useTransition();
+  const router = useRouter();
+
+  const handleSave = (id: string) => {
+    if (!isAuthenticated) {
+      router.push("/login?next=/");
+      return;
+    }
+    setSavedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+    startTransition(async () => {
+      const result = await toggleSaveDeal(id);
+      if (result.error) {
+        // revert optimistic update on failure
+        setSavedIds((prev) => {
+          const next = new Set(prev);
+          if (next.has(id)) next.delete(id);
+          else next.add(id);
+          return next;
+        });
+        if (result.error === "not_authenticated") router.push("/login?next=/");
+      }
+    });
+  };
 
   const filteredDeals =
-    activeCategory === "All"
-      ? DEALS
-      : DEALS.filter((deal) => deal.category === activeCategory);
+    activeCategory === "All" ? deals : deals.filter((deal) => deal.category === activeCategory);
+  const expiringCount = deals.filter((deal) => deal.expiring).length;
 
   return (
     <>
@@ -27,9 +62,13 @@ export function FeedScreen() {
           <Link href="/search" className="icon-btn" aria-label="Search">
             🔍
           </Link>
-          <div className="icon-btn" aria-label="Notifications">
-            🔔
-          </div>
+          <Link
+            href={isAuthenticated ? "/account" : "/login"}
+            className="icon-btn"
+            aria-label={isAuthenticated ? "Account" : "Log in"}
+          >
+            {isAuthenticated ? "👤" : "🔑"}
+          </Link>
         </div>
       </div>
 
@@ -45,22 +84,27 @@ export function FeedScreen() {
         ))}
       </div>
 
-      <div className="trending-banner">
-        <div className="trending-dot" />
-        <div className="trending-text">
-          <strong>142 deals</strong> expiring in the next 48 hours — <strong>don&apos;t miss out</strong>
+      {expiringCount > 0 && (
+        <div className="trending-banner">
+          <div className="trending-dot" />
+          <div className="trending-text">
+            <strong>
+              {expiringCount} {expiringCount === 1 ? "deal" : "deals"}
+            </strong>{" "}
+            expiring in the next 48 hours — <strong>don&apos;t miss out</strong>
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="feed">
         {filteredDeals.map((deal) => (
           <VideoCard
             key={deal.id}
             video={deal}
-            saved={isSaved(deal.id)}
+            saved={savedIds.has(deal.id)}
             copied={copiedId === deal.id}
             onCopy={copyCode}
-            onSave={toggleSave}
+            onSave={handleSave}
           />
         ))}
         {filteredDeals.length === 0 && (

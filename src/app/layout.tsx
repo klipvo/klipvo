@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Bricolage_Grotesque, DM_Sans, Syne } from "next/font/google";
 import { BottomNav } from "@/components/bottom-nav";
-import { SavedDealsProvider } from "@/components/providers/saved-deals-provider";
 import { ToastProvider } from "@/components/providers/toast-provider";
 import "./globals.css";
 
@@ -37,14 +36,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${fontDisplay.variable} ${fontUi.variable} ${fontBody.variable}`}
     >
       <body>
-        <SavedDealsProvider>
-          <ToastProvider>
-            <div className="app-shell">
-              {children}
-              <BottomNav />
-            </div>
-          </ToastProvider>
-        </SavedDealsProvider>
+        <ToastProvider>
+          <div className="app-shell">
+            {children}
+            <BottomNav />
+          </div>
+        </ToastProvider>
       </body>
     </html>
   );

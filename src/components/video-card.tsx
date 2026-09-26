@@ -1,13 +1,14 @@
 "use client";
 
-import type { Deal } from "@/lib/types";
+import type { DealView } from "@/lib/data/deals";
+import { incrementDealClicks } from "@/lib/actions/deals";
 
 interface VideoCardProps {
-  video: Deal;
+  video: DealView;
   saved: boolean;
   copied: boolean;
-  onCopy: (code: string, id: number) => void;
-  onSave: (id: number) => void;
+  onCopy: (code: string, id: string) => void;
+  onSave: (id: string) => void;
 }
 
 export function VideoCard({ video, saved, copied, onCopy, onSave }: VideoCardProps) {
@@ -50,7 +51,17 @@ export function VideoCard({ video, saved, copied, onCopy, onSave }: VideoCardPro
         </div>
 
         <div className="card-actions">
-          <a className="shop-btn primary" href={video.link}>
+          <a
+            className="shop-btn primary"
+            href={video.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => {
+              incrementDealClicks(video.id).catch(() => {
+                // best-effort click tracking — not critical to the navigation
+              });
+            }}
+          >
             🛒 Shop Now →
           </a>
           <button

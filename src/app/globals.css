@@ -902,6 +902,19 @@ body {
   background: #dfff33;
   box-shadow: 0 0 30px rgba(200, 255, 0, 0.3);
 }
+.submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.form-error {
+  background: rgba(255, 60, 172, 0.1);
+  border: 1px solid rgba(255, 60, 172, 0.3);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  color: var(--accent2);
+  font-size: 13px;
+}
 
 /* SAVED SCREEN */
 .saved-screen {
@@ -985,6 +998,61 @@ body {
   font-size: 11px;
   color: var(--accent2);
   margin-top: 6px;
+}
+
+/* AUTH SCREENS */
+.auth-screen {
+  padding: 20px;
+  padding-bottom: 100px;
+  max-width: 400px;
+  margin: 0 auto;
+}
+.auth-switch {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.auth-switch a {
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 20px;
+  cursor: pointer;
+}
+.account-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+.account-link {
+  display: block;
+  text-align: center;
+  text-decoration: none;
+  margin-bottom: 12px;
+}
+.account-note {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+.account-logout {
+  width: 100%;
+  color: var(--accent2);
+  border-color: rgba(255, 60, 172, 0.3);
 }
 
 /* COPY TOAST */

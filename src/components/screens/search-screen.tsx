@@ -1,6 +1,9 @@
-import { BRANDS, TRENDING_SEARCHES } from "@/lib/mock-data";
+import { getBrandsWithCounts } from "@/lib/data/deals";
+import { TRENDING_SEARCHES } from "@/lib/constants";
 
-export function SearchScreen() {
+export async function SearchScreen() {
+  const brands = await getBrandsWithCounts();
+
   return (
     <div className="search-screen">
       <div className="screen-header">
@@ -14,17 +17,23 @@ export function SearchScreen() {
       </div>
 
       <div className="section-title">Top Brands</div>
-      <div className="brand-grid">
-        {BRANDS.map((brand) => (
-          <div className="brand-card" key={brand.name}>
-            <div className="brand-emoji">{brand.emoji}</div>
-            <div className="brand-info">
-              <div className="brand-name-text">{brand.name}</div>
-              <div className="brand-code-count">{brand.codes} active codes</div>
+      {brands.length > 0 ? (
+        <div className="brand-grid">
+          {brands.map((brand) => (
+            <div className="brand-card" key={brand.id}>
+              <div className="brand-emoji">{brand.emoji}</div>
+              <div className="brand-info">
+                <div className="brand-name-text">{brand.name}</div>
+                <div className="brand-code-count">
+                  {brand.activeDeals} active {brand.activeDeals === 1 ? "code" : "codes"}
+                </div>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      ) : (
+        <div className="empty-state">No brands yet — check back soon</div>
+      )}
 
       <div className="section-title">Trending Searches</div>
       <div className="trending-searches">
